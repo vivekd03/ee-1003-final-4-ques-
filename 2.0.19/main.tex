@@ -163,4 +163,58 @@ plt.show()
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}{Computational Verification using CVXPY}
+    CVXPY strictly enforces Disciplined Convex Programming (DCP). The function $f(x,y) = xy$ is not directly DCP-compliant for maximization.
+    
+    \vspace{0.3cm}
+    \textbf{Transformation:} We maximize the geometric mean $h(x,y) = \sqrt{xy}$, which yields the same optimal point and is DCP-compliant.
+    
+    \vspace{0.3cm}
+    \textbf{Multiplier Recovery:} Let $\nu$ be the CVXPY dual variable for the transformed objective. By the chain rule, $\nabla h = \frac{1}{2\sqrt{f}} \nabla f$. 
+    
+    Equating the Lagrangian gradients gives the relation:
+    \begin{equation}
+        \lambda_{\text{original}} = 2 \sqrt{x^* y^*} \cdot \nu
+    \end{equation}
+    
+    \textbf{CVXPY Output:}
+    \begin{itemize}
+        \item Optimal $x = 5.00$, Optimal $y = 5.00$
+        \item CVXPY Dual Variable ($\nu$) = $0.25$
+        \item $\lambda_{\text{original}} = 2 \sqrt{25} \cdot (0.25) = 2.5$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{CVXPY Python Code}
+\begin{lstlisting}
+import cvxpy as cp
+import numpy as np
+
+# Define variables (must be positive for geo_mean)
+x = cp.Variable(pos=True)
+y = cp.Variable(pos=True)
+
+# Maximize geometric mean to satisfy DCP rules
+objective = cp.Maximize(cp.geo_mean(cp.vstack([x, y])))
+
+# Constraint: 2x + 2y = 20
+constraint = [2*x + 2*y == 20]
+
+# Solve the problem
+prob = cp.Problem(objective, constraint)
+prob.solve()
+
+# Extract values
+x_opt, y_opt = x.value, y.value
+nu = constraint[0].dual_value # CVXPY's Lagrange multiplier
+
+# Recover the original Lagrange multiplier via Chain Rule
+lambda_orig = 2 * np.sqrt(x_opt * y_opt) * nu
+
+print(f"Optimal (x, y): ({x_opt:.2f}, {y_opt:.2f})")
+print(f"CVXPY Dual Variable: {nu:.2f}")
+print(f"Original Lagrange Multiplier: {lambda_orig:.2f}")
+\end{lstlisting}
+\end{frame}
+
 \end{document}
