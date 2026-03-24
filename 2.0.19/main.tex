@@ -1,0 +1,166 @@
+
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configure Python code formatting
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\tiny,
+    keywordstyle=\color{blue},
+    stringstyle=\color{green!50!black},
+    commentstyle=\color{red!80!black},
+    showstringspaces=false,
+    frame=single,
+    breaklines=true
+}
+
+\title{Constrained Optimization}
+\subtitle{Problem 2.0.19 (2007 PI)}
+\author{ee25btech11019}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Problem Statement}
+    The problem of finding the rectangle of maximum area with perimeter equal to 20 can be posed as the constrained optimization problem:
+    \begin{align*}
+        \max \quad & xy \\
+        \text{s.t.} \quad & 2x + 2y = 20 \\
+        & x, y \geq 0
+    \end{align*}
+    The solution to this problem is $x = y = 5$. What is the value of the Lagrange multiplier corresponding to the perimeter constraint?
+    
+    \vspace{0.5cm}
+    a) 2.5 \hspace{1cm} b) 5 \hspace{1cm} c) 7.5 \hspace{1cm} d) 10
+\end{frame}
+
+\begin{frame}{Vector Formulation}
+    Let the variables be represented by the vector $\mathbf{x} = \begin{pmatrix} x \\ y \end{pmatrix}$.
+    
+    The objective function $f(\mathbf{x}) = xy$ can be expressed as a quadratic form:
+    \begin{equation}
+        f(\mathbf{x}) = \frac{1}{2} \mathbf{x}^\top \mathbf{V} \mathbf{x}
+    \end{equation}
+    where $\mathbf{V} = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$.
+    
+    \vspace{0.5cm}
+    The perimeter constraint $2x + 2y = 20$ can be written as:
+    \begin{equation}
+        \mathbf{c}^\top \mathbf{x} = d
+    \end{equation}
+    where $\mathbf{c} = \begin{pmatrix} 2 \\ 2 \end{pmatrix}$ and $d = 20$.
+\end{frame}
+
+\begin{frame}{Method of Lagrange Multipliers}
+    We formulate the Lagrangian function $L(\mathbf{x}, \lambda)$:
+    \begin{equation}
+        L(\mathbf{x}, \lambda) = \frac{1}{2} \mathbf{x}^\top \mathbf{V} \mathbf{x} - \lambda (\mathbf{c}^\top \mathbf{x} - d)
+    \end{equation}
+    where $\lambda$ is the Lagrange multiplier.
+    
+    \vspace{0.5cm}
+    To find the optimum, we set the gradient of $L$ with respect to $\mathbf{x}$ to the zero vector:
+    \begin{equation}
+        \nabla_{\mathbf{x}} L(\mathbf{x}, \lambda) = \mathbf{V}\mathbf{x} - \lambda\mathbf{c} = \mathbf{0}
+    \end{equation}
+    \begin{equation}
+        \implies \mathbf{x} = \lambda \mathbf{V}^{-1}\mathbf{c}
+    \end{equation}
+\end{frame}
+
+\begin{frame}{Solving for the Lagrange Multiplier}
+    Substitute $\mathbf{x} = \lambda \mathbf{V}^{-1}\mathbf{c}$ into the constraint equation $\mathbf{c}^\top \mathbf{x} = d$:
+    \begin{equation}
+        \mathbf{c}^\top (\lambda \mathbf{V}^{-1}\mathbf{c}) = d \implies \lambda (\mathbf{c}^\top \mathbf{V}^{-1}\mathbf{c}) = d
+    \end{equation}
+    
+    First, compute the inverse of $\mathbf{V}$:
+    \begin{equation}
+        \mathbf{V}^{-1} = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}^{-1} = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}
+    \end{equation}
+    
+    Next, evaluate the scalar $\mathbf{c}^\top \mathbf{V}^{-1}\mathbf{c}$:
+    \begin{equation}
+        \mathbf{c}^\top \mathbf{V}^{-1}\mathbf{c} = \begin{pmatrix} 2 & 2 \end{pmatrix} \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} 2 \\ 2 \end{pmatrix} = \begin{pmatrix} 2 & 2 \end{pmatrix} \begin{pmatrix} 2 \\ 2 \end{pmatrix} = 4 + 4 = 8
+    \end{equation}
+\end{frame}
+
+\begin{frame}{Final Answer}
+    Now, substitute the evaluated scalar back into the constraint equation:
+    \begin{equation}
+        \lambda (8) = 20
+    \end{equation}
+    \begin{equation}
+        \lambda = \frac{20}{8} = 2.5
+    \end{equation}
+    
+    \vspace{1cm}
+    The value of the Lagrange multiplier is 2.5. 
+    
+    \vspace{0.5cm}
+    \textbf{Correct Option: (a)}
+\end{frame}
+
+\begin{frame}{Graphical Solution (Simulation)}
+    \begin{figure}[H]
+        \centering
+        % Ensure you run the Python script first to generate this image
+        \includegraphics[width=0.8\textwidth]{image.png}
+        \caption{Contour plot of Area ($xy$) and Perimeter Constraint ($x+y=10$)}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Python Code for Simulation}
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the objective function (Area)
+def f(x, y):
+    return x * y
+
+# Generate grid for contour plot
+x = np.linspace(0, 10, 400)
+y = np.linspace(0, 10, 400)
+X, Y = np.meshgrid(x, y)
+Z = f(X, Y)
+
+# Plot contours of the objective function
+plt.figure(figsize=(8, 6))
+contour = plt.contour(X, Y, Z, levels=[5, 10, 15, 20, 25], colors='blue', alpha=0.5)
+plt.clabel(contour, inline=True, fontsize=10)
+
+# Plot the perimeter constraint line: 2x + 2y = 20 => y = 10 - x
+x_const = np.linspace(0, 10, 400)
+y_const = 10 - x_const
+plt.plot(x_const, y_const, 'r-', label='Constraint: $x + y = 10$', linewidth=2)
+
+# Plot the optimal point
+plt.plot(5, 5, 'ko', markersize=8, label='Optimal Point (5, 5)')
+
+# Formatting the plot
+plt.xlabel('$x$')
+plt.ylabel('$y$')
+plt.title('Constrained Optimization: Maximize Area')
+plt.legend()
+plt.grid(True)
+
+# Save the plot to include in Beamer
+plt.savefig('optimization_plot.png')
+plt.show()
+\end{lstlisting}
+\end{frame}
+
+\end{document}
