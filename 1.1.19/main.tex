@@ -1,0 +1,154 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configure Python code formatting
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\tiny,
+    keywordstyle=\color{blue},
+    stringstyle=\color{green!50!black},
+    commentstyle=\color{red!80!black},
+    showstringspaces=false,
+    frame=single,
+    breaklines=true
+}
+
+\title{LTI System Frequency and Step Response}
+\subtitle{Problem 1.1.19 (EC 2007)}
+\author{ee25btech11019}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Problem Statement}
+    The frequency response of a linear time-invariant system is given by $H(f) = \frac{5}{1 + j10\pi f}$.
+    
+    The step response of the system is:
+    
+    \vspace{0.5cm}
+    a) $5(1 - e^{-5t})u(t)$
+    
+    b) $5(1 - e^{-t/5})u(t)$
+    
+    c) $\frac{1}{5}(1 - e^{-5t})u(t)$
+    
+    d) $\frac{1}{5}(1 - e^{-t/5})u(t)$
+\end{frame}
+
+\begin{frame}{Transformation to the s-Domain}
+    We first map the system from the Fourier frequency domain to the Laplace $s$-domain. 
+    
+    The relationship between the continuous Fourier transform and the Laplace transform (evaluating along the imaginary axis) is:
+    \begin{equation}
+        s = j\omega = j2\pi f
+    \end{equation}
+    
+    We rewrite the denominator of $H(f)$ to isolate this term:
+    \begin{equation}
+        j10\pi f = 5(j2\pi f) = 5s
+    \end{equation}
+    
+    Substituting this into the frequency response gives the transfer function $H(s)$:
+    \begin{equation}
+        H(s) = \frac{5}{1 + 5s} = \frac{1}{s + 0.2}
+    \end{equation}
+\end{frame}
+
+\begin{frame}{Deriving the Step Response}
+    The step response $Y(s)$ in the Laplace domain is the product of the system transfer function $H(s)$ and the step input $X(s)$.
+    
+    The Laplace transform of the Heaviside step function $u(t)$ is $X(s) = \frac{1}{s}$.
+    
+    \begin{equation}
+        Y(s) = H(s)X(s) = \left( \frac{1}{s + 0.2} \right) \left( \frac{1}{s} \right) = \frac{1}{s(s + 0.2)}
+    \end{equation}
+    
+    We perform a partial fraction expansion to prepare for the inverse transform:
+    \begin{equation}
+        \frac{1}{s(s + 0.2)} = \frac{A}{s} + \frac{B}{s + 0.2}
+    \end{equation}
+    
+    Solving for the coefficients yields $A = 5$ and $B = -5$:
+    \begin{equation}
+        Y(s) = \frac{5}{s} - \frac{5}{s + 0.2}
+    \end{equation}
+\end{frame}
+
+\begin{frame}{Inverse Laplace Transform}
+    We now apply the standard inverse Laplace transforms to revert to the time domain:
+    \begin{align}
+        \mathcal{L}^{-1} \left\{ \frac{1}{s} \right\} &= u(t) \\
+        \mathcal{L}^{-1} \left\{ \frac{1}{s + a} \right\} &= e^{-at}u(t)
+    \end{align}
+    
+    Applying these to our expanded equation:
+    \begin{equation}
+        y(t) = 5u(t) - 5e^{-0.2t}u(t)
+    \end{equation}
+    \begin{equation}
+        y(t) = 5(1 - e^{-t/5})u(t)
+    \end{equation}
+    
+    \vspace{0.5cm}
+    \textbf{Correct Option: (b)}
+\end{frame}
+
+\begin{frame}{Computational Verification Plot}
+    \begin{figure}[H]
+        \centering
+        % Ensure you run the Python script first to generate this image
+        \includegraphics[width=0.85\textwidth]{lti_response.png}
+        \caption{Perfect overlap between the SciPy numerical simulation and SymPy's derived analytical equation.}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Python Verification}
+\begin{lstlisting}
+import sympy as sp
+from scipy import signal
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. SYMBOLIC ALGEBRA ENGINE (SymPy)
+s, t = sp.symbols('s t')
+H_s = 5 / (1 + 5*s)
+X_s = 1 / s # Step input in Laplace domain
+Y_s = H_s * X_s
+y_t = sp.inverse_laplace_transform(Y_s, s, t) # Exact analytical solve
+print(f"SymPy Analytical Output: {y_t}")
+
+# 2. NUMERICAL SIGNAL ENGINE (SciPy)
+# Transfer function H(s) = 5 / (5s + 1) -> num=[5], den=[5, 1]
+sys = signal.TransferFunction([5], [5, 1])
+time, response = signal.step(sys)
+
+# 3. VERIFICATION PLOT
+plt.figure(figsize=(7, 4))
+plt.plot(time, response, 'b-', lw=3, label='SciPy Numerical Step Response')
+t_vals = np.linspace(0, max(time), 100)
+y_sym = 5 * (1 - np.exp(-t_vals/5))
+plt.plot(t_vals, y_sym, 'r--', lw=2, label=r'SymPy Analytical: $5(1 - e^{-t/5})$')
+
+plt.title("LTI System: Symbolic vs Numerical Verification")
+plt.xlabel("Time (t)")
+plt.ylabel("Amplitude y(t)")
+plt.legend(loc="lower right")
+plt.grid(True)
+plt.savefig('lti_response.png', dpi=150)
+\end{lstlisting}
+\end{frame}
+
+
+\end{document}
