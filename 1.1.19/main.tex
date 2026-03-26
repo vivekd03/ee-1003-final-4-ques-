@@ -105,6 +105,37 @@
     \textbf{Correct Option: (b)}
 \end{frame}
 
+\begin{frame}{System Physics: Deriving the Differential Equation}
+    While the Laplace transform provides an algebraic pathway, we must rigorously define the governing Differential Equation of the system.
+    
+    Starting from our derived transfer function:
+    \begin{equation}
+        H(s) = \frac{Y(s)}{X(s)} = \frac{5}{5s + 1}
+    \end{equation}
+    
+    We cross-multiply to relate the complex output $Y(s)$ to the input $X(s)$:
+    \begin{equation}
+        Y(s)(5s + 1) = 5X(s)
+    \end{equation}
+    \begin{equation}
+        5sY(s) + Y(s) = 5X(s)
+    \end{equation}
+\end{frame}
+
+\begin{frame}{Time-Domain Differential Equation}
+    We apply the Inverse Laplace Transform. By the derivative property, multiplying by $s$ in the complex domain equates to a time derivative $\frac{d}{dt}$ in the time domain (assuming zero initial conditions):
+    \begin{equation}
+        5 \frac{dy(t)}{dt} + y(t) = 5x(t)
+    \end{equation}
+    
+    To find the step response, our input $x(t)$ is the Heaviside step function $u(t)$:
+    \begin{equation}
+        5 \frac{dy(t)}{dt} + y(t) = 5u(t)
+    \end{equation}
+    
+    This derives the exact first-order linear ordinary differential equation (ODE) of the system. In standard form $\tau y' + y = Kx$, we clearly see the system time constant is $\tau = 5$, which fundamentally proves why the decay envelope of our solution must be $e^{-t/5}$.
+\end{frame}
+
 \begin{frame}{Computational Verification Plot}
     \begin{figure}[H]
         \centering
